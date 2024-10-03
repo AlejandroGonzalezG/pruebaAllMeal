@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: allmeal_db
+      POSTGRES_USER: prueba_allmeal
+      POSTGRES_PASSWORD: contraseña
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=prueba_all_meal.settings
+      - PYTHONPATH=/code
+      - DATABASE_URL=postgres://prueba_allmeal:contraseña@db:5432/allmeal_db
+
+  worker:
+    user: celery
+    build: .
+    command: celery -A config worker --loglevel=info
+    volumes:
+    - ./config:/app/config
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+
+  beat:
+    build: 
+      context: .
+    user: root
+    command: celery -A config beat --loglevel=info
+    volumes:
+    - ./config:/app/config
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

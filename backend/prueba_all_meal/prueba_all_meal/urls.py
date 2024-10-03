@@ -15,9 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from meals.views import MealList
+from meals.views import MainDishList
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/meals/', MealList.as_view(), name='meal-list'),
+    path('meals/', MainDishList.as_view(), name='maindish'),
 ]

@@ -1,15 +1,5 @@
-<script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true
-  }
-})
-</script>
-
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
     <h3>
       You’ve successfully created a project with
       <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
@@ -17,6 +7,27 @@ defineProps({
     </h3>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const items = ref([])
+
+const fetchData = async() => {
+  try {
+    const response = await axios.get('http://localhost:8000/meals/');
+    console.log(response);
+    items.value = response.data
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+onMounted(async() => {
+  await fetchData()
+})
+</script>
 
 <style scoped>
 h1 {
